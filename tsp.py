@@ -25,7 +25,6 @@ class cities:
         except:
             raise ValueError("Problem reading file")
 
-
     def calculate_distances(self):
         nr_cities = len(set(self.cities.keys()))
         distance_matrix = np.array(np.ones((nr_cities,nr_cities)) * np.inf)
@@ -38,6 +37,16 @@ class cities:
                     lowest_distance = distance_matrix[i][j]
         self.distances = distance_matrix
 
+    def calc_rank_population(self, population):
+        import pandas as pd
+        cols = [i for i in range(0, len(population[0]))]
+        cols.append("Fitness")
+        for indiv in population:
+            indiv.append(self.calculate_path_distance(indiv))
+
+        rank = pd.DataFrame(data=population, columns=cols)
+        rank_sorted = rank.sort_values(by="Fitness", ascending=False)
+        return rank_sorted
 
     def make_population(self, pop_size):
         population = []
@@ -60,8 +69,29 @@ class cities:
                         min_dist = self.distances[pos][i]
                         new_pos = i
                 path.append(new_pos)
+            path.append(path[0])
             population.append(path)
-        return population
+
+        population = self.calc_rank_population(population)
+
+        self.population = population
+
+
+    def top_paths(self, top=-1):
+        if top == -1:
+            top = int(len(self.population)*0.25)
+        return self.population.iloc[0:top]
+
+    def offspring(self, top=-1):
+        offspring = []
+        offspring_fitness = []
+        top_offspring = self.top_paths(top)
+        for i in range(0,len(top_offspring)):
+            offspring.append(top_offspring.iloc[i].tolist()[:-1])
+            offspring_fitness.append(top_offspring.iloc[i].tolist()[-1:])
+
+
+        return offspring
 
 
     def calculate_path_distance(self, path):
@@ -144,7 +174,8 @@ class cities:
         return final_path, f'{best_distance:,}'
 
 
-if __name__ == '__main__':
+
+def test1():
     # start = time.time()
     #
     # qatar = cities("qa194.tsp", make_init_path=True)
@@ -160,5 +191,18 @@ if __name__ == '__main__':
     for path in population:
         print(qatar.calculate_path_distance(path))
     print(qatar.mutation2(population[0], 1_000_000))
+
+def test2():
+    qatar = cities("qa194.tsp")
+    qatar.make_population(20)
+    #print(qatar.population)
+    print(qatar.offspring())
+
+
+if __name__ == '__main__':
+    #test1()
+    test2
+
+
 
 
