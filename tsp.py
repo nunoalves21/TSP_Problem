@@ -3,13 +3,16 @@ import random
 import time
 import math
 
-class cities:
-    def __init__(self, namefile = ''):
+
+from Popul import Popul
+
+class tsp:
+    def __init__(self, namefile = '', pop_size = 20):
         self.cities = {}
-        self.distances = None
         self.read_file(namefile)
-        self.calculate_distances()
-        self.population = None
+        self.distances = self.calculate_distances()
+        self.indivsize = len(self.cities.keys())
+        self.population = Popul(pop_size, self.indivsize, self.distances)
 
     def read_file(self, file):
         try:
@@ -36,112 +39,7 @@ class cities:
                 distance_matrix[j][i] = ((self.cities[i][0] - self.cities[j][0]) ** 2) + ((self.cities[i][1] - self.cities[j][1]) ** 2)
                 if distance_matrix[i][j] < lowest_distance:
                     lowest_distance = distance_matrix[i][j]
-        self.distances = distance_matrix
-
-    def calc_rank_population(self, population):
-        import pandas as pd
-        cols = [i for i in range(0, len(population[0]))]
-        cols.append("Fitness")
-        for indiv in population:
-            indiv.append(self.calculate_path_distance(indiv))
-
-        rank = pd.DataFrame(data=population, columns=cols)
-        rank_sorted = rank.sort_values(by="Fitness", ascending=False)
-        return rank_sorted
-
-    def make_population(self, pop_size):
-        population = []
-        existing_combinations = []
-        combination = []
-        for i in range(pop_size):
-            found = False
-            while not found:
-                combination = random.sample(range(len(self.cities)), 2)
-                if combination not in existing_combinations:
-                    existing_combinations.append(combination)
-                    found = True
-            path = [combination[0], combination[1]]
-            while len(path) != len(self.cities):
-                pos = path[-1]
-                min_dist = math.inf
-                new_pos = 0
-                for i in range(len(self.distances[pos])):
-                    if self.distances[pos][i] < min_dist and i not in path:
-                        min_dist = self.distances[pos][i]
-                        new_pos = i
-                path.append(new_pos)
-            path.append(path[0])
-            population.append(path)
-
-        population = self.calc_rank_population(population)
-
-        self.population = population
-
-
-    def top_paths(self, top=-1):
-        if top == -1:
-            top = int(len(self.population)*0.25)
-        return self.population.iloc[0:top]
-
-    def offspring(self, top=-1):
-        offspring = []
-        offspring_fitness = []
-        top_offspring = self.top_paths(top)
-        for i in range(0,len(top_offspring)):
-            offspring.append(top_offspring.iloc[i].tolist()[:-1])
-            offspring_fitness.append(top_offspring.iloc[i].tolist()[-1:])
-
-
-        return offspring
-
-
-    def calculate_path_distance(self, path):
-        path_distance = 0
-        for i in range(len(path)-1):
-            path_distance += self.distances[path[i]][path[i+1]]
-        path_distance += self.distances[path[-1]][path[0]]
-        return path_distance
-
-
-    def calc_distance_to_remove_add(self, path, city1, city2):
-        if city1 == 0 and city2 == len(path)-1:
-            distance = self.distances[path[city1]][path[city1 + 1]] + self.distances[path[city2]][path[city2 - 1]]
-        elif city1 == len(path)-1 and city2 == 0:
-            distance = self.distances[path[city1]][path[city1 - 1]] + self.distances[path[city2]][path[city2 + 1]]
-        elif city1 == 0:
-            distance = self.distances[path[city1]][path[city1 + 1]] + \
-                       self.distances[path[city2]][path[city2 - 1]] + self.distances[path[city2]][path[city2 + 1]]
-        elif city2 == 0:
-            distance = self.distances[path[city1]][path[city1 - 1]] + self.distances[path[city1]][path[city1 + 1]] + \
-                         self.distances[path[city2]][path[city2 + 1]]
-        elif city1 == len(path)-1:
-            distance = self.distances[path[city1]][path[city1 - 1]] + \
-                        self.distances[path[city2]][path[city2 - 1]] + self.distances[path[city2]][path[city2 + 1]]
-        elif city2 == len(path)-1:
-            distance = self.distances[path[city1]][path[city1 - 1]] + self.distances[path[city1]][path[city1 + 1]] + \
-                       self.distances[path[city2]][path[city2 - 1]]
-        else:
-            distance = self.distances[path[city1]][path[city1 - 1]] + self.distances[path[city1]][path[city1 + 1]] + \
-                   self.distances[path[city2]][path[city2 - 1]] + self.distances[path[city2]][path[city2 + 1]]
-        return distance
-
-    def mutation(self, path, iterations = 1_000):
-        best_distance = self.calculate_path_distance(path)
-        final_path = path
-        print(len(path))
-        for i in range(iterations):
-            a, b = random.sample(range(0, len(path) - 1), 2)
-            distance_remove = self.calc_distance_to_remove_add(final_path, a, b)
-            new_distance = best_distance - distance_remove
-            new_path = final_path.copy()
-            new_path[b], new_path[a] = new_path[a], new_path[b]
-            distance_add = self.calc_distance_to_remove_add(new_path, a, b)
-            distance = new_distance + distance_add
-            print(f'{distance:,}')
-            if distance < best_distance:
-                best_distance = distance
-                final_path = new_path
-        return final_path, f'{best_distance:,}'
+        return distance_matrix
 
     def mutation1(self, path, iterations = 1_000):
         best_distance = self.calculate_path_distance(path)
