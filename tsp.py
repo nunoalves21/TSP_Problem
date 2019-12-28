@@ -9,6 +9,7 @@ class cities:
         self.distances = None
         self.read_file(namefile)
         self.calculate_distances()
+        self.population = None
 
     def read_file(self, file):
         try:
