@@ -12,7 +12,10 @@ class Popul:     #é um conjunto de individups com tamanho fixado
         self.popsize = popsize         #tamanho da pop
         self.indivsize = indivsize
         self.distances = distances_matrix
-        self.initRandomPop(self.popsize)    
+        self.initRandomPop(self.popsize)
+
+    def getIndiv(self, index):
+        return self.indivs[index]
 
     def pop_sorted(self, population):
         fitness_sort = {}
@@ -28,7 +31,7 @@ class Popul:     #é um conjunto de individups com tamanho fixado
         return sorted_list
 
     def initRandomPop(self, pop_size):
-        population = []
+        indivs = []
         existing_combinations = []
         combination = []
         for i in range(pop_size):
@@ -38,32 +41,32 @@ class Popul:     #é um conjunto de individups com tamanho fixado
                 if combination not in existing_combinations:
                     existing_combinations.append(combination)
                     found = True
-            ind = Indiv(self.indivsize, self.distances, combination)
-            population.append(ind)
+            indiv = Indiv(self.indivsize, self.distances, combination)
+            indivs.append(indiv)
 
-        self.population = self.pop_sorted(population)
+        self.indivs = self.pop_sorted(indivs)
 
-    def generate_offspring(self, method, elitism = False, nr_offspring=self.popsize):
+    def generate_offspring(self, method, elitism = False):
         if elitism:
-            nr_elits = int((nr_offspring)*0.25)
-            nr_offspring -= nr_elits
-            offspring = self.population[0:nr_elits+1]
+            nr_elits = int((self.popsize)*0.25)
+            self.popsize -= nr_elits
+            offspring = self.indivs[0:nr_elits+1]
         else:
             offspring = []
         if method.lower() == "mutation":
-            offspring += self.pop_mutate(nr_offspring)
+            offspring += self.pop_mutate(self.popsize)
         elif method.lower() == "crossover":
-            offspring += self.pop_crossover(nr_offspring)
+            offspring += self.pop_crossover(self.popsize)
         elif method.lower() == "mixed":
-            nr_mutations = int(nr_offspring*0.33)
-            nr_offspring -= nr_mutations
+            nr_mutations = int(self.popsize*0.33)
+            self.popsize -= nr_mutations
             offspring += self.pop_mutate(nr_mutations)
-            offspring += self.pop_crossover(nr_offspring)
+            offspring += self.pop_crossover(self.popsize)
         return self.pop_sorted(offspring)
 
     def pop_mutate(self, nr_offspring):
         offspring = []
-        for inv in self.population:
+        for inv in self.indivs:
             offspring.append(inv.mutation)
         return offspring
 
@@ -140,6 +143,3 @@ class Popul:     #é um conjunto de individups com tamanho fixado
             if i not in tokeep:    #verifica se é para manter
                 self.indivs[i] = offspring[ind_offsp]   #se não for
                 ind_offsp += 1
-        
-    
-    

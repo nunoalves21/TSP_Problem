@@ -38,38 +38,6 @@ class tsp:
                 distance_matrix[j][i] = math.sqrt((self.cities[i][0] - self.cities[j][0]) ** 2) + ((self.cities[i][1] - self.cities[j][1]) ** 2)
         return distance_matrix
 
-    def mutation1(self, path, iterations = 1_000):
-        best_distance = self.calculate_path_distance(path)
-        final_path = path
-        for i in range(iterations):
-            a, b = random.sample(range(0,len(path)-1), 2)
-            distance_remove = self.calc_distance_to_remove_add(final_path, a, b)
-            new_distance = best_distance - distance_remove
-            new_path = final_path.copy()
-            new_path[b], new_path[a] = new_path[a], new_path[b]
-            distance_add = self.calc_distance_to_remove_add(new_path, a, b)
-            distance = new_distance + distance_add
-            print(f'{distance:,}')
-            if distance < best_distance:
-                best_distance = distance
-                final_path = new_path
-        return final_path, f'{best_distance:,}'
-
-    def mutation2(self, path, iterations = 1_000):
-        best_distance = self.calculate_path_distance(path)
-        final_path = path
-        for i in range(iterations):
-            a, b = random.sample(range(0, len(path)-1), 2)
-            new_path = final_path.copy()
-            new_path[b], new_path[a] = new_path[a], new_path[b]
-            distance = self.calculate_path_distance(new_path)
-            print(f'{distance:,}')
-            if distance < best_distance:
-                best_distance = distance
-                final_path = new_path
-        return final_path, f'{best_distance:,}'
-
-
 
 def test1():
     # start = time.time()
@@ -80,18 +48,24 @@ def test1():
     # print(qatar.mutation2(qatar.init_path, 1_000_000))
     #
     # print("it took", time.time() - start, "seconds.")
-
-    #teste às populações
-    qatar = cities("qa194.tsp")
-    population = qatar.make_population(1)
-    for path in population:
-        print(qatar.calculate_path_distance(path))
-    print(qatar.mutation2(population[0], 1_000_000))
+    pass
 
 def test2():
-    qatar = tsp("qa194.tsp")
-    for i in qatar.population.population:
-        print(i.get_fitness())
+    qatar = tsp("qa194.tsp", 1)
+    for indiv in qatar.population.indivs:
+        #print(indiv.fitness)
+        l = [indiv]
+        best_fit = indiv.fitness
+        for i in range(20_000):
+            mutated_ind = l.pop().mutation()
+            if mutated_ind.fitness < best_fit:
+                best_fit = mutated_ind.fitness
+                best_path = mutated_ind.get_path()
+            print('iteration: ', i, '\t fitness:', mutated_ind.fitness)
+            l.append(mutated_ind)
+        print('Best Path found:', best_path)
+        print('Best Fitness found:', best_fit)
+
 
 if __name__ == '__main__':
     #test1()
