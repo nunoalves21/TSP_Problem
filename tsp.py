@@ -32,13 +32,10 @@ class tsp:
     def calculate_distances(self):
         nr_cities = len(set(self.cities.keys()))
         distance_matrix = np.array(np.ones((nr_cities,nr_cities)) * np.inf)
-        lowest_distance = ((self.cities[0][0]-self.cities[1][0])**2 ) + ((self.cities[0][1]-self.cities[1][1])**2 )
         for i in range(0, nr_cities-1):
             for j in range(i+1, nr_cities):
-                distance_matrix[i][j] = ((self.cities[i][0]-self.cities[j][0])**2) + ((self.cities[i][1]-self.cities[j][1])**2)
-                distance_matrix[j][i] = ((self.cities[i][0] - self.cities[j][0]) ** 2) + ((self.cities[i][1] - self.cities[j][1]) ** 2)
-                if distance_matrix[i][j] < lowest_distance:
-                    lowest_distance = distance_matrix[i][j]
+                distance_matrix[i][j] = math.sqrt((self.cities[i][0]-self.cities[j][0])**2) + ((self.cities[i][1]-self.cities[j][1])**2)
+                distance_matrix[j][i] = math.sqrt((self.cities[i][0] - self.cities[j][0]) ** 2) + ((self.cities[i][1] - self.cities[j][1]) ** 2)
         return distance_matrix
 
     def mutation1(self, path, iterations = 1_000):
@@ -92,15 +89,13 @@ def test1():
     print(qatar.mutation2(population[0], 1_000_000))
 
 def test2():
-    qatar = cities("qa194.tsp")
-    qatar.make_population(20)
-    #print(qatar.population)
-    print(qatar.offspring())
-
+    qatar = tsp("qa194.tsp")
+    for i in qatar.population.population:
+        print(i.get_fitness())
 
 if __name__ == '__main__':
     #test1()
-    test2
+    test2()
 
 
 

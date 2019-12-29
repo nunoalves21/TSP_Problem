@@ -2,25 +2,30 @@
 
 from Indiv import Indiv
 from random import random
+from random import sample
 import pandas as pd
+import math
 
 class Popul:     #é um conjunto de individups com tamanho fixado
 
     def __init__(self, popsize, indivsize, distances_matrix):
         self.popsize = popsize         #tamanho da pop
-        self.indivsize
+        self.indivsize = indivsize
         self.distances = distances_matrix
         self.initRandomPop(self.popsize)    
 
-    def fitness_ranked_df(self, population):
-        cols = [i for i in range(0, len(population[0]))]
-        cols.append("Fitness")
-        for indiv in population:
-            indiv.append(self.calculate_path_distance(indiv))
-
-        rank = pd.DataFrame(data=population, columns=cols)
-        rank_sorted = rank.sort_values(by="Fitness", ascending=False)
-        return rank_sorted
+    def pop_sorted(self, population):
+        fitness_sort = {}
+        for i in range(0, self.popsize):
+            if population[i].get_fitness() not in fitness_sort.keys():
+                fitness_sort[float(population[i].get_fitness())] = [i]
+            else:
+                fitness_sort[population[i].get_fitness()].append(i)
+        sorted_list = []
+        for i in sorted(fitness_sort.keys()):
+            for j in fitness_sort[i]:
+                sorted_list.append(population[j])
+        return sorted_list
 
     def initRandomPop(self, pop_size):
         population = []
@@ -29,48 +34,41 @@ class Popul:     #é um conjunto de individups com tamanho fixado
         for i in range(pop_size):
             found = False
             while not found:
-                combination = random.sample(range(len(self.cities)), 2)
+                combination = sample(range(self.indivsize-1), 2)
                 if combination not in existing_combinations:
                     existing_combinations.append(combination)
                     found = True
-            path = Indiv(comb)       
-            while len(path.get_size()) != len(self.cities):
-                pos = path[-1]
-                min_dist = math.inf
-                new_pos = 0
-                for i in range(len(self.distances[pos])):
-                    if self.distances[pos][i] < min_dist and i not in path:
-                        min_dist = self.distances[pos][i]
-                        new_pos = i
-                path.append(new_pos)
-            path.append(path.cities[0])
-            population.append(path)
+            ind = Indiv(self.indivsize, self.distances, combination)
+            population.append(ind)
 
-        self.population = self.fitness_ranked_df(population)
+        self.population = self.pop_sorted(population)
 
+    def generate_offspring(self, method, elitism = False, nr_offspring=self.popsize):
+        if elitism:
+            nr_elits = int((nr_offspring)*0.25)
+            nr_offspring -= nr_elits
+            offspring = self.population[0:nr_elits+1]
+        else:
+            offspring = []
+        if method.lower() == "mutation":
+            offspring += self.pop_mutate(nr_offspring)
+        elif method.lower() == "crossover":
+            offspring += self.pop_crossover(nr_offspring)
+        elif method.lower() == "mixed":
+            nr_mutations = int(nr_offspring*0.33)
+            nr_offspring -= nr_mutations
+            offspring += self.pop_mutate(nr_mutations)
+            offspring += self.pop_crossover(nr_offspring)
+        return self.pop_sorted(offspring)
 
-    def top_paths(self, top=-1):
-        if top == -1:
-            top = int(len(self.population)*0.25)
-        return self.population.iloc[0:top]
-
-    def offspring(self, top=-1):
+    def pop_mutate(self, nr_offspring):
         offspring = []
-        offspring_fitness = []
-        top_offspring = self.top_paths(top)
-        for i in range(0,len(top_offspring)):
-            offspring.append(top_offspring.iloc[i].tolist()[:-1])
-            offspring_fitness.append(top_offspring.iloc[i].tolist()[-1:])
-
-
+        for inv in self.population:
+            offspring.append(inv.mutation)
         return offspring
 
-
-
-
-
-
-
+    def pop_crossover(self, nr_offspring):
+        pass
 
 
     def getFitnesses(self):    #manipulação dos valores de aptidão

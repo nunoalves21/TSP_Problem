@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from random import randint, random, shuffle
+import math
 
 class Indiv:        #path
     
-    def __init__(self, indivsize, distances_matrix, pos = False, path = []):
+    def __init__(self, indivsize, distances_matrix, pos = False, path = [], fitness = False):
         self.indivsize = indivsize
         self.distances = distances_matrix
         if pos:
@@ -12,7 +13,10 @@ class Indiv:        #path
             self.initIndiv()
         else:
             self.path = path
-        self.fitness = self.calculate_path_distance()
+        if fitness:
+            self.fitness = fitness
+        else:
+            self.fitness = self.calculate_path_distance()
 
     def get_path(self):
         return self.path
@@ -20,17 +24,19 @@ class Indiv:        #path
     def get_fitness(self):
         return self.fitness
 
+    def append_city(self, city):
+        self.path.append(city)
+
     def initIndiv(self):
         while len(self.path) != self.indivsize:
-                pos = self.path[-1]
-                min_dist = math.inf
-                new_pos = 0
-                for i in range(len(self.distances[pos])):
-                    if self.distances[pos][i] < min_dist and i not in self.path:
-                        min_dist = self.distances[pos][i]
-                        new_pos = i
-                self.path.append(new_pos)
-            self.path.append(self.path[0])
+            pos = self.path[-1]
+            min_dist = math.inf
+            new_pos = 0
+            for i in range(len(self.distances[pos])):
+                if self.distances[pos][i] < min_dist and i not in self.path:
+                    min_dist = self.distances[pos][i]
+                    new_pos = i
+            self.path.append(new_pos)
 
     def calculate_path_distance(self):    #fitness
         path_distance = 0
@@ -39,7 +45,19 @@ class Indiv:        #path
         path_distance += self.distances[self.path[-1]][self.path[0]]
         return path_distance
 
-    def mutation(self, path, iterations = 1_000):
+    def mutation(self):
+        a, b = random.sample(range(0, self.indivsize), 2)
+
+
+
+
+
+
+
+
+
+
+
         best_distance = self.calculate_path_distance(self.path)
         final_path = self.path
         for i in range(iterations):
@@ -54,7 +72,7 @@ class Indiv:        #path
             if distance < best_distance:
                 best_distance = distance
                 final_path = new_path
-        return Indiv(self.indivsize, self.distances, pos=False, final_path)
+        return Indiv(self.indivsize, self.distances, False, final_path)
 
     
     def calc_distance_to_remove_add(self, path, city1, city2):
