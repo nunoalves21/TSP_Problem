@@ -6,18 +6,27 @@ from random import sample
 import pandas as pd
 import math
 
-class Popul:     #é um conjunto de individups com tamanho fixado
+class Popul: #é um conjunto de individups com tamanho fixado
 
     def __init__(self, popsize, indivsize, distances_matrix):
-        self.popsize = popsize         #tamanho da pop
-        self.indivsize = indivsize
-        self.distances = distances_matrix
-        self.initRandomPop(self.popsize)
+        self.popsize = popsize #tamanho da pop
+        self.indivsize = indivsize #nr de cidades cada indiviudo tem
+        self.distances = distances_matrix #matriz de distancias entre as cidades
+        self.initRandomPop(self.popsize) #Inicia uma instancia aleatoria da populacao
 
     def getIndiv(self, index):
+        '''
+        Retorna individuo da lista de populacoes
+        '''
         return self.indivs[index]
 
     def pop_sorted(self, population):
+        '''
+        Ordena uma lista de individuos
+        Funcao coloca cada individuo num dicionario cujo fitness
+        (distancia total) e a chave. As chaves sao ordenadas e retornadas
+        numa lista de individuos
+        '''
         fitness_sort = {}
         for i in range(0, self.popsize):
             if population[i].get_fitness() not in fitness_sort.keys():
@@ -31,8 +40,12 @@ class Popul:     #é um conjunto de individups com tamanho fixado
         return sorted_list
 
     def initRandomPop(self, pop_size):
-        indivs = []
-        existing_combinations = []
+        '''
+        Funcao inicia uma populacao aleatoria de individuos com
+        tamanho pop_size
+        '''
+        indivs = [] #Lista de individuos da populacao
+        existing_combinations = [] #Lista que guarda os pontos de partida de cada ind
         combination = []
         for i in range(pop_size):
             found = False
@@ -41,12 +54,17 @@ class Popul:     #é um conjunto de individups com tamanho fixado
                 if combination not in existing_combinations:
                     existing_combinations.append(combination)
                     found = True
+            #Criacao de novo individuo
             indiv = Indiv(self.indivsize, self.distances, True, [combination[0], combination[1]])
             indivs.append(indiv)
 
+        #Atribuicao de lista de individuos ordenada da populacao
         self.indivs = self.pop_sorted(indivs)
 
     def set_population(self, population):
+        '''
+        Funcao que define a lista de individuos
+        '''
         self.indivs = population
 
     # def generate_offspring(self, method, elitism = False):
@@ -60,6 +78,11 @@ class Popul:     #é um conjunto de individups com tamanho fixado
     #     return self.pop_sorted(offspring)
 
     def pop_mutate(self, nr_offspring):
+        '''
+        Funcao que aplica mutacoes a cada individuo da populacao
+        e retorna uma lista com os melhores individuos obtidos.
+        O numero de individuos a retornar e dado por nr_offspring
+        '''
         offspring = []
         for ind in self.indivs:
             offspring.append(ind.mutation())
@@ -69,7 +92,10 @@ class Popul:     #é um conjunto de individups com tamanho fixado
     def pop_crossover(self, nr_offspring):
         pass
 
-    def getFitnesses(self):    #manipulação dos valores de aptidão
+    def getFitnesses(self):
+        '''
+        Funcao que retorna uma lista com todos os fitnesses da populacao
+        '''
         fitnesses = []
         for ind in self.indivs:
             fitnesses.append(ind.getFitness())
