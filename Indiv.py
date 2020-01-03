@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from random import sample, random, shuffle
+from random import sample
 import math
 
 class Indiv:        #path
@@ -9,7 +9,7 @@ class Indiv:        #path
         self.indivsize = indivsize
         self.distances = distances_matrix
         if pos:
-            self.path = [pos[0], pos[1]]
+            self.path = path
             self.initIndiv()
         else:
             self.path = path
@@ -17,12 +17,16 @@ class Indiv:        #path
             self.fitness = fitness
         else:
             self.fitness = self.calculate_path_distance()
+        self.elite = False
 
     def get_path(self):
         return self.path
 
     def get_fitness(self):
         return self.fitness
+
+    def set_elite(self, value):
+        self.elite = value
 
     def append_city(self, city):
         self.path.append(city)
@@ -53,12 +57,11 @@ class Indiv:        #path
             x = a - b
         return a,b
 
-
     def mutation(self):
         count = 0
-        while True:
+        while count < 40:
             count += 1
-            a,b = self.get_random_pos()
+            a, b = self.get_random_pos()
             new_path = self.path.copy()
             new_path.insert(0, self.path[-1])
             new_path.append(self.path[0])
@@ -91,29 +94,14 @@ class Indiv:        #path
                 new_path = self.path.copy()
                 new_path[a] = city_b
                 new_path[b] = city_a
+
             if distance < self.fitness:
                 return Indiv(self.indivsize, self.distances, False, new_path, distance)
-            elif count == 40:
-                return Indiv(self.indivsize, self.distances, False, self.path, False)
+        if self.elite:
+            return Indiv(self.indivsize,self.distances, True, [a, b], False)
+        else:
+            return Indiv(self.indivsize, self.distances, False, self.path, False)
 
-
-
-
-    # def getGenes(self):
-    #     return self.genes
-    #
-    # def initRandom(self, size):
-    #     self.genes = []
-    #     for i in range(size):
-    #         self.genes.append(randint(0,1))
-    #
-    #
-    # def mutation(self):
-    #     s = len(self.genes)
-    #     pos = randint(0,s-1)      #escolhe uma posição qualquer
-    #     if self.genes[pos] == 0: self.genes[pos] = 1     #faz a mutação
-    #     else: self.genes[pos] = 0                       #faz a mutação
-    #
     # def crossover(self, indiv2):
     #     return self.one_pt_crossover(indiv2)
     #

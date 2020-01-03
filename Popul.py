@@ -41,38 +41,33 @@ class Popul:     #é um conjunto de individups com tamanho fixado
                 if combination not in existing_combinations:
                     existing_combinations.append(combination)
                     found = True
-            indiv = Indiv(self.indivsize, self.distances, combination)
+            indiv = Indiv(self.indivsize, self.distances, True, [combination[0], combination[1]])
             indivs.append(indiv)
 
         self.indivs = self.pop_sorted(indivs)
 
-    def generate_offspring(self, method, elitism = False):
-        if elitism:
-            nr_elits = int((self.popsize)*0.25)
-            self.popsize -= nr_elits
-            offspring = self.indivs[0:nr_elits+1]
-        else:
-            offspring = []
-        if method.lower() == "mutation":
-            offspring += self.pop_mutate(self.popsize)
-        elif method.lower() == "crossover":
-            offspring += self.pop_crossover(self.popsize)
-        elif method.lower() == "mixed":
-            nr_mutations = int(self.popsize*0.33)
-            self.popsize -= nr_mutations
-            offspring += self.pop_mutate(nr_mutations)
-            offspring += self.pop_crossover(self.popsize)
-        return self.pop_sorted(offspring)
+    def set_population(self, population):
+        self.indivs = population
+
+    # def generate_offspring(self, method, elitism = False):
+    #     elif method.lower() == "crossover":
+    #         offspring += self.pop_crossover(self.popsize)
+    #     elif method.lower() == "mixed":
+    #         nr_mutations = int(self.popsize*0.33)
+    #         self.popsize -= nr_mutations
+    #         offspring += self.pop_mutate(nr_mutations)
+    #         offspring += self.pop_crossover(self.popsize)
+    #     return self.pop_sorted(offspring)
 
     def pop_mutate(self, nr_offspring):
         offspring = []
-        for inv in self.indivs:
-            offspring.append(inv.mutation)
-        return offspring
+        for ind in self.indivs:
+            offspring.append(ind.mutation())
+        offspring = self.pop_sorted(offspring)
+        return offspring[0:nr_offspring+1]
 
     def pop_crossover(self, nr_offspring):
         pass
-
 
     def getFitnesses(self):    #manipulação dos valores de aptidão
         fitnesses = []

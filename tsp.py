@@ -2,6 +2,7 @@ import numpy as np
 import random
 import time
 import math
+import tqdm
 
 
 from Popul import Popul
@@ -39,6 +40,40 @@ class tsp:
         return distance_matrix
 
 
+    def elitism(self):
+        nr_elits = int((self.population.popsize) * 0.25)
+        nr_offsprings = self.population.popsize - nr_elits
+        offspring = self.population.indivs[0:nr_elits + 1]
+        for ind in offspring:
+            ind.set_elite(True)
+        return offspring, nr_offsprings
+
+
+
+    def run(self, nr_iterations, method, elitism=False):
+        if method.lower() == "mutation":
+            for i in tqdm.trange(0, nr_iterations):
+                if elitism:
+                    offspring, nr_offsprings = self.elitism()
+                else:
+                    offspring = []
+                    nr_offsprings = self.population.popsize
+
+                offspring += self.population.pop_mutate(nr_offsprings)
+                self.population.set_population(offspring)
+
+
+        best = self.population.pop_sorted(self.population.indivs)[0]
+        print(best.get_fitness())
+        print(best.get_path())
+
+
+
+
+
+
+
+
 def test1():
     # start = time.time()
     #
@@ -51,12 +86,16 @@ def test1():
     pass
 
 def test2():
-    qatar = tsp("qa194.tsp", 1)
-    for indiv in qatar.population.indivs:
-        #print(indiv.fitness)
-        l = [indiv]
-        best_fit = indiv.fitness
-        for i in range(20_000):
+    qatar = tsp("qa194.tsp", 3)
+    l=[]
+    best_fit = 0
+    best_path = 0
+    for indiv in range(len(qatar.population.indivs)):
+        if indiv == 0:
+            l = [qatar.population.indivs[indiv]]
+            best_fit = qatar.population.indivs[indiv].fitness
+            best_path  = qatar.population.indivs[indiv].path
+        for i in range(10_000):
             mutated_ind = l.pop().mutation()
             if mutated_ind.fitness < best_fit:
                 best_fit = mutated_ind.fitness
@@ -66,10 +105,15 @@ def test2():
         print('Best Path found:', best_path)
         print('Best Fitness found:', best_fit)
 
+def test3():
+    qatar = tsp("qa194.tsp", 20)
+    qatar.run(100_000, "mutation", False)
+
 
 if __name__ == '__main__':
     #test1()
-    test2()
+    #test2()
+    test3()
 
 
 
