@@ -5,10 +5,10 @@ import math
 
 class Indiv:        #path
     
-    def __init__(self, indivsize, distances_matrix, pos = False, path = [], fitness = False, random = True):
+    def __init__(self, indivsize, distances_matrix, pos = False, path = [], fitness = False, random = False):
         self.indivsize = indivsize #nr de cidades de cada caminho
         self.distances = distances_matrix #matriz de dinstancias
-        if pos: #Cria caminho (path) a partir das distancias mais curtas de cidade em cidade
+        if pos and random == False: #Cria caminho (path) a partir das distancias mais curtas de cidade em cidade
             # a partir das primeiras 2 cidades.
             self.path = path
             self.initIndiv()
@@ -65,17 +65,9 @@ class Indiv:        #path
 
 
     def initRandomIndiv(self):
-        pos_0 = sample(range(self.indivsize), 1)
-        existing_positions = [pos_0]
-        self.path.append(pos_0)
-        while len(self.path) != self.indivsize:
-            found = False
-            while not found:
-                new_pos = sample(range(self.indivsize), 1)
-                if new_pos not in existing_positions:
-                    existing_positions.append(new_pos)
-                    self.path.append(new_pos)
-                    found = True
+        path = [i for i in range(0, self.indivsize)]
+        shuffle(path)
+        self.path = path
 
     def calculate_path_distance(self):
         '''
@@ -150,7 +142,7 @@ class Indiv:        #path
             if distance < self.fitness:
                 return Indiv(self.indivsize, self.distances, False, new_path, distance)
         if self.elite:
-            return Indiv(self.indivsize,self.distances, True, [a, b], False)
+            return Indiv(self.indivsize,self.distances, False, [], False, True)
         else:
             return Indiv(self.indivsize, self.distances, False, self.path, False)
 

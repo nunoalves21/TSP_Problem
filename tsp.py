@@ -1,18 +1,16 @@
 import numpy as np
-import random
-import time
 import math
 import tqdm
 from Popul import Popul
 import argparse
 
 
-parser = argparse.ArgumentParser(prog="TSP",description="Travel Salesman problem with Evolutionary algorithms")
+parser = argparse.ArgumentParser(prog="tsp.py",description="Travel Salesman problem with Evolutionary Algorithms")
 parser.add_argument("-f", "--file",  action="store",help=".tsp file", default= "qa194.tsp")
-parser.add_argument("-i", "--iter",  action="store",help="nr of iterations", default= 10_000)
-parser.add_argument("-p", "--pop_size",  action="store",help="population size", default= 20)
-parser.add_argument("-m", "--method",  action="store", choices=["mutation", "crossover", "mixed"], help="method of evolutionary algorithm", default="mixed")
-parser.add_argument("-e", "--elitistm", action="store", help="Run with elitism", default=False)
+parser.add_argument("-i", "--iter",  action="store",help="number of iterations", default= 10_000)
+parser.add_argument("-p", "--pop_size",  action="store",help="Population size", default= 20)
+parser.add_argument("-m", "--method",  action="store", choices=["mutation", "crossover", "mixed"], help="Method of evolutionary algorithm", default="mixed")
+parser.add_argument("-e", "--elitistm", action="store", choices = [True, False], help="Run with elitism", default=False)
 args = parser.parse_args()
 
 
@@ -104,7 +102,7 @@ class tsp:
                 nr_mutations = int(self.population.get_indivsize()*0.33)
                 nr_offsprings -= nr_mutations
                 offspring += self.population.pop_mutate(nr_mutations)
-                offspring += self.population.pop_crossover(nr_offsprings)
+                offspring += self.population.pop_crossover(nr_offsprings, True)
                 self.population.set_population(offspring)
             top = self.population.pop_sorted(self.population.indivs)[0]
             if top.get_fitness() < best_fitness:
@@ -155,8 +153,7 @@ def test2():
 
 def test3():
     qatar = tsp("qa194.tsp", 20)
-    for j in range(0, 50):
-        qatar.run(10_000, "mixed", True)
+    qatar.run(10_000, "mutation", True)
 
 def test4():
     qatar = tsp("qa194.tsp", 20)
@@ -170,6 +167,7 @@ def test4():
     best_fit = math.inf
     best_path = []
     for indiv in range(len(qatar.population.indivs)):
+        pass
 
 
 
@@ -178,9 +176,4 @@ def test4():
 if __name__ == '__main__':
     #test1()
     #test2()
-    print()
     test3()
-
-
-
-

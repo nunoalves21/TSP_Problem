@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from Indiv import Indiv
-from random import random
-from random import sample, shuffle
-import pandas as pd
-import math
+from random import sample
 
 class Popul: #é um conjunto de individups com tamanho fixado
 
@@ -12,8 +9,8 @@ class Popul: #é um conjunto de individups com tamanho fixado
         self.popsize = popsize #tamanho da pop
         self.indivsize = indivsize #nr de cidades cada indiviudo tem
         self.distances = distances_matrix #matriz de distancias entre as cidades
-        #self.initRandomPos(self.popsize) #Inicia uma instancia aleatoria da populacao
-        self.initRandomPopWithRandomIndiv(self.popsize)
+        self.initRandomPos(self.popsize) #Inicia uma instancia aleatoria da populacao
+        #self.initRandomPopWithRandomIndiv(self.popsize)
 
     def getIndiv(self, index):
         '''
@@ -81,16 +78,6 @@ class Popul: #é um conjunto de individups com tamanho fixado
         '''
         self.indivs = population
 
-    # def generate_offspring(self, method, elitism = False):
-    #     elif method.lower() == "crossover":
-    #         offspring += self.pop_crossover(self.popsize)
-    #     elif method.lower() == "mixed":
-    #         nr_mutations = int(self.popsize*0.33)
-    #         self.popsize -= nr_mutations
-    #         offspring += self.pop_mutate(nr_mutations)
-    #         offspring += self.pop_crossover(self.popsize)
-    #     return self.pop_sorted(offspring)
-
     def pop_mutate(self, nr_offspring):
         '''
         Funcao que aplica mutacoes a cada individuo da populacao
@@ -103,19 +90,25 @@ class Popul: #é um conjunto de individups com tamanho fixado
         offspring = self.pop_sorted(offspring)
         return offspring[0:nr_offspring+1]
 
-    def pop_crossover(self, nr_offspring):
+    def pop_crossover(self, nr_offspring, top=False):
         offspring = []
         population = self.pop_sorted(self.indivs)
-        top_index = int(self.popsize/2)
-        j = 0
-        for i in range(top_index, self.popsize):
-            offspring += population[i].crossover(population[j])
-            if j < top_index-1:
-                j += 1
-            else:
-                j = 0
-        offspring = self.pop_sorted(offspring)
-        return offspring[0:nr_offspring+1]
+        if top:
+            for i in range(1, self.popsize):
+                offspring += population[0].crossover(population[i])
+            offspring = self.pop_sorted(offspring)
+            return offspring[0:nr_offspring + 1]
+        else:
+            top_index = int(self.popsize/2)
+            j = 0
+            for i in range(top_index, self.popsize):
+                offspring += population[i].crossover(population[j])
+                if j < top_index-1:
+                    j += 1
+                else:
+                    j = 0
+            offspring = self.pop_sorted(offspring)
+            return offspring[0:nr_offspring+1]
 
     def getFitnesses(self):
         '''
