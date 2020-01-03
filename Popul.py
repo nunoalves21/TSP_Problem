@@ -44,13 +44,13 @@ class Popul: #é um conjunto de individups com tamanho fixado
         Funcao inicia uma populacao aleatoria de individuos com
         tamanho pop_size
         '''
+        combination = []
         indivs = [] #Lista de individuos da populacao
         existing_combinations = [] #Lista que guarda os pontos de partida de cada ind
-        combination = []
         for i in range(pop_size):
             found = False
             while not found:
-                combination = sample(range(self.indivsize-1), 2) #primeiras 2 cidades
+                combination = sample(range(self.indivsize), 2) #primeiras 2 cidades
                 if combination not in existing_combinations:
                     existing_combinations.append(combination)
                     found = True
@@ -58,7 +58,14 @@ class Popul: #é um conjunto de individups com tamanho fixado
             indiv = Indiv(self.indivsize, self.distances, True, [combination[0], combination[1]])
             indivs.append(indiv)
 
-        #Atribuicao de lista de individuos ordenada da populacao
+        #Atribuicao de lista de individuos da populacao, ordenada do melhor para pior fitness
+        self.indivs = self.pop_sorted(indivs)
+
+    def initRandomPopWithRandomIndiv(self, pop_size):
+        indivs=[]
+        for i in range(pop_size):
+            indiv = Indiv(self.indivsize, self.distances, True, [], False, random=True)
+            indivs.append(indiv)
         self.indivs = self.pop_sorted(indivs)
 
     def set_population(self, population):

@@ -133,6 +133,15 @@ def test3():
     for j in range(0, 50):
         qatar.run(10_000, "mutation", False)
 
+def test4():
+    qatar = tsp("qa194.tsp", 20)
+    best_fit = math.inf
+    best_path = []
+    for indiv in range(len(qatar.population.indivs)):
+
+
+
+
 
 if __name__ == '__main__':
     #test1()
