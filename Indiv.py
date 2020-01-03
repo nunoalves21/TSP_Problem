@@ -63,6 +63,7 @@ class Indiv:        #path
                     new_pos = i
             self.path.append(new_pos)
 
+
     def initRandomIndiv(self):
         pos_0 = sample(range(self.indivsize), 1)
         existing_positions = [pos_0]
