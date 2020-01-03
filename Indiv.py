@@ -6,32 +6,51 @@ import math
 class Indiv:        #path
     
     def __init__(self, indivsize, distances_matrix, pos = False, path = [], fitness = False):
-        self.indivsize = indivsize
-        self.distances = distances_matrix
-        if pos:
+        self.indivsize = indivsize #nr de cidades de cada caminho
+        self.distances = distances_matrix #matriz de dinstancias
+        if pos: #Cria caminho (path) a partir das distancias mais curtas de cidade em cidade
+            # a partir das primeiras 2 cidades.
             self.path = path
             self.initIndiv()
-        else:
+        else: #Se nao o caminho e definido pela lista path
             self.path = path
-        if fitness:
+        if fitness:# atribui valor de fitness nao sendo preciso calcular
             self.fitness = fitness
         else:
             self.fitness = self.calculate_path_distance()
-        self.elite = False
+        self.elite = False #marcacao do individuo caso este esteja
+        # na lista de individuos com melhor fitness a passar para proxima geracao
 
     def get_path(self):
+        '''
+        retorna a lista de cidades do caminho
+        '''
         return self.path
 
     def get_fitness(self):
+        '''
+        retorna a distancia final do caminho
+        '''
         return self.fitness
 
     def set_elite(self, value):
+        '''
+        define a marcacao de elitismo
+        '''
         self.elite = value
 
     def append_city(self, city):
+        '''
+        adiciona cidade ao caminho
+        '''
         self.path.append(city)
 
     def initIndiv(self):
+        '''
+        Inicia um novo caminho, percorrendo a matriz de distancias.
+        Este adiciona ao caminho a cidade mais proxima da anterior,
+        sem repetir.
+        '''
         while len(self.path) != self.indivsize:
             pos = self.path[-1]
             min_dist = math.inf
@@ -42,7 +61,10 @@ class Indiv:        #path
                     new_pos = i
             self.path.append(new_pos)
 
-    def calculate_path_distance(self):    #fitness
+    def calculate_path_distance(self):
+        '''
+        Fncao calcula a distancia (fitness) do caminho
+        '''
         path_distance = 0
         for i in range(len(self.path)-1):
             path_distance += self.distances[self.path[i]][self.path[i+1]]
@@ -50,6 +72,9 @@ class Indiv:        #path
         return path_distance
 
     def get_random_pos(self):
+        '''
+        Funcao gera 2 pontos aleatorios no caminho
+        '''
         a, b = 0, 0
         x = 1
         while x == 1 or x == -1:  # para os casos em que calha um a seguir ao outro (não faz sentido trocar)
@@ -58,6 +83,17 @@ class Indiv:        #path
         return a,b
 
     def mutation(self):
+        '''
+        Funcao gera mutacoes no caminho.
+        Este testa 40 mutacoes para tentar obter um caminho melhor.
+        Se encontrar uma solucao melhor que a anterior, retorna um novo individuo
+        com o novo caminho.
+        Se nao obter um caminho melhor o resultado depende da marcacao de elitismo.
+        Se o individuo nao estiver marcado como elite, retorna um novo individuo com o mesmo
+        caminho.
+        Se este estiver marcado como elite, gera um novo individuo, cujo o inicio do caminho
+        e dado pelos ultimos 2 cidades aleatorios testados na mutacao.
+        '''
         count = 0
         while count < 40:
             count += 1

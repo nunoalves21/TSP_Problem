@@ -130,7 +130,8 @@ def test2():
 
 def test3():
     qatar = tsp("qa194.tsp", 20)
-    qatar.run(100_000, "mutation", False)
+    for j in range(0, 50):
+        qatar.run(10_000, "mutation", False)
 
 
 if __name__ == '__main__':

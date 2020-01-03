@@ -50,7 +50,7 @@ class Popul: #é um conjunto de individups com tamanho fixado
         for i in range(pop_size):
             found = False
             while not found:
-                combination = sample(range(self.indivsize-1), 2)
+                combination = sample(range(self.indivsize-1), 2) #primeiras 2 cidades
                 if combination not in existing_combinations:
                     existing_combinations.append(combination)
                     found = True
