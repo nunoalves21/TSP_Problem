@@ -3,9 +3,18 @@ import random
 import time
 import math
 import tqdm
-
-
 from Popul import Popul
+import argparse
+
+
+parser = argparse.ArgumentParser(prog="TSP",description="Travel Salesman problem with Evolutionary algorithms")
+parser.add_argument("-f", "--file",  action="store",help=".tsp file", default= "qa194.tsp")
+parser.add_argument("-i", "--iter",  action="store",help="nr of iterations", default= 10_000)
+parser.add_argument("-p", "--pop_size",  action="store",help="population size", default= 20)
+parser.add_argument("-m", "--method",  action="store", choices=["mutation", "crossover", "mixed"], help="method of evolutionary algorithm", default="mixed")
+parser.add_argument("-e", "--elitistm", action="store", help="Run with elitism", default=False)
+args = parser.parse_args()
+
 
 class tsp:
     def __init__(self, namefile = '', pop_size = 20):
@@ -74,26 +83,42 @@ class tsp:
         Elitismo define se a funcao a cada iteracao guarda 25% dos melhores
         projenitores para a proxima descendencia.
         '''
-        if method.lower() == "mutation":
-            for i in tqdm.trange(0, nr_iterations):
-                if elitism:
-                    offspring, nr_offsprings = self.elitism()
-                else:
-                    offspring = []
-                    nr_offsprings = self.population.popsize
+        best_fitness = math.inf
+        best_path = []
+        for i in tqdm.trange(0, nr_iterations):
+            if elitism:
+                offspring, nr_offsprings = self.elitism()
+            else:
+                offspring = []
+                nr_offsprings = self.population.popsize
 
+            if method.lower() == "mutation":
                 offspring += self.population.pop_mutate(nr_offsprings)
                 self.population.set_population(offspring)
 
+            elif method.lower() == "crossover":
+                offspring += self.population.pop_crossover(nr_offsprings)
+                self.population.set_population(offspring)
 
-        best = self.population.pop_sorted(self.population.indivs)[0]
-        print(best.get_fitness())
-        print(best.get_path())
+            elif method.lower() == "mixed":
+                nr_mutations = int(self.population.get_indivsize()*0.33)
+                nr_offsprings -= nr_mutations
+                offspring += self.population.pop_mutate(nr_mutations)
+                offspring += self.population.pop_crossover(nr_offsprings)
+                self.population.set_population(offspring)
+            top = self.population.pop_sorted(self.population.indivs)[0]
+            if top.get_fitness() < best_fitness:
+                best_fitness = top.get_fitness()
+                best_path = top.get_path()
+        print(best_fitness)
+        print(best_path)
 
 
 
 
-
+def run():
+    qatar = tsp(args.file, args.pop_size)
+    qatar.run(args.iter, args.method, args.elitistm)
 
 
 
@@ -131,7 +156,14 @@ def test2():
 def test3():
     qatar = tsp("qa194.tsp", 20)
     for j in range(0, 50):
-        qatar.run(10_000, "mutation", False)
+        qatar.run(10_000, "mixed", True)
+
+def test4():
+    qatar = tsp("qa194.tsp", 20)
+    best_fit = math.inf
+    best_path = []
+    for indiv in range(len(qatar.population.indivs)):
+        pass
 
 def test4():
     qatar = tsp("qa194.tsp", 20)
@@ -146,6 +178,7 @@ def test4():
 if __name__ == '__main__':
     #test1()
     #test2()
+    print()
     test3()
 
 

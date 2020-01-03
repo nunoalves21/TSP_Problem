@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from random import sample
+from random import sample, shuffle
 import math
 
 class Indiv:        #path
@@ -153,18 +153,49 @@ class Indiv:        #path
         else:
             return Indiv(self.indivsize, self.distances, False, self.path, False)
 
-    # def crossover(self, indiv2):
-    #     return self.one_pt_crossover(indiv2)
-    #
-    # def one_pt_crossover(self, indiv2):   #self é um individuo o indiv2 será o outro
-    #     offsp1 = []
-    #     offsp2 = []
-    #     s = len(self.genes)
-    #     pos = randint(0,s-1)        #escolhe posição de corte
-    #     for i in range(pos):          #do zero à posição vai preenchendo
-    #         offsp1.append(self.genes[i])
-    #         offsp2.append(indiv2.genes[i])
-    #     for i in range(pos, s):
-    #         offsp2.append(self.genes[i])
-    #         offsp1.append(indiv2.genes[i])
-    #     return Indiv(s, offsp1), Indiv(s, offsp2)
+    def crossover(self, indiv2):
+        a, b = self.get_random_pos()
+        offsprings= [[-1 for i in range(0,self.indivsize+1)] for j in range(0,2)]
+        parents = (self.path, indiv2.get_path())
+        # Step 1
+        offsprings[0][a:b+1] = parents[1][a:b]
+        offsprings[1][a:b+1] = parents[0][a:b]
+
+        # Step 2
+        parents_check_0 = parents[0][0:a] + parents[0][b:]
+        parents_check_1 = parents[1][0:a] + parents[1][b:]
+        parents_fill_0 = parents[0][a:b]
+        parents_fill_1 = parents[1][a:b]
+
+        for i in range(0, self.indivsize):
+            if i < a or i >= b:
+                if parents[0][i] in parents_check_1:
+                    offsprings[0][i] = parents[0][i]
+                else:
+                    parents_fill_1.append(parents[0][i])
+
+                if parents[1][i] in parents_check_0:
+                    offsprings[1][i] = parents[1][i]
+                else:
+                    parents_fill_0.append(parents[1][i])
+        # Step 3
+        i = 0
+        while len(parents_fill_0) > 0 or len(parents_fill_1) > 0:
+            if i ==len(offsprings):
+                break
+            if i < a or i >= b:
+                #print(i)
+                if parents[0][i] == -1:
+                    if parents_fill_0[0] in offsprings[0]:
+                        parents_fill_0.pop(0)
+                    else:
+                        offsprings[0][i] = parents_fill_0.pop(0)
+                elif parents[1][i] == -1:
+                    if parents_fill_1[0] in offsprings[1]:
+                        parents_fill_1.pop(0)
+                    else:
+                        offsprings[1][i] = parents_fill_1.pop(0)
+            i += 1
+        offsprings[0] = Indiv(self.indivsize, self.distances, False, offsprings[0], False)
+        offsprings[1] = Indiv(self.indivsize, self.distances, False, offsprings[1], False)
+        return offsprings
