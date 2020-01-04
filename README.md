@@ -24,9 +24,9 @@ The program requires:
 
 1. tqdm
 
-   ```
-   pip install tqdm
-   ```
+```
+pip install tqdm
+```
 
    
 
