@@ -4,7 +4,6 @@ import tqdm
 from Popul import Popul
 import argparse
 
-
 parser = argparse.ArgumentParser(prog="tsp.py",description="Travel Salesman problem with Evolutionary Algorithms")
 parser.add_argument("-f", "--file",  action="store",help=".tsp file", default= "qa194.tsp")
 parser.add_argument("-i", "--iter",  action="store",help="number of iterations", default= 10_000)
@@ -111,69 +110,11 @@ class tsp:
         print(best_fitness)
         print(best_path)
 
-
-
-
 def run():
     qatar = tsp(args.file, args.pop_size)
     qatar.run(args.iter, args.method, args.elitistm)
 
 
-
-def test1():
-    # start = time.time()
-    #
-    # qatar = cities("qa194.tsp", make_init_path=True)
-    # #print(qatar.cities)
-    # print(qatar.calculate_path_distance(qatar.init_path))
-    # print(qatar.mutation2(qatar.init_path, 1_000_000))
-    #
-    # print("it took", time.time() - start, "seconds.")
-    pass
-
-def test2():
-    qatar = tsp("qa194.tsp", 3)
-    l=[]
-    best_fit = 0
-    best_path = 0
-    for indiv in range(len(qatar.population.indivs)):
-        if indiv == 0:
-            l = [qatar.population.indivs[indiv]]
-            best_fit = qatar.population.indivs[indiv].fitness
-            best_path  = qatar.population.indivs[indiv].path
-        for i in range(10_000):
-            mutated_ind = l.pop().mutation()
-            if mutated_ind.fitness < best_fit:
-                best_fit = mutated_ind.fitness
-                best_path = mutated_ind.get_path()
-            print('iteration: ', i, '\t fitness:', mutated_ind.fitness)
-            l.append(mutated_ind)
-        print('Best Path found:', best_path)
-        print('Best Fitness found:', best_fit)
-
-def test3():
-    qatar = tsp("qa194.tsp", 20)
-    qatar.run(10_000, "mutation", True)
-
-def test4():
-    qatar = tsp("qa194.tsp", 20)
-    best_fit = math.inf
-    best_path = []
-    for indiv in range(len(qatar.population.indivs)):
-        pass
-
-def test4():
-    qatar = tsp("qa194.tsp", 20)
-    best_fit = math.inf
-    best_path = []
-    for indiv in range(len(qatar.population.indivs)):
-        pass
-
-
-
-
-
 if __name__ == '__main__':
-    #test1()
-    #test2()
-    test3()
+    qatar = tsp("qa194.tsp", 194)
+    qatar.run(3_000, "mutation", True)
